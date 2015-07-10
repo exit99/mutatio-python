@@ -3,6 +3,8 @@ import re
 
 from bs4 import BeautifulSoup
 
+from .defaults import dashboard_template
+
 
 class TagGenerator():
     def __init__(self, db, app=None):
@@ -35,6 +37,10 @@ class TagGenerator():
         """Parse the templates and return a dictionary of tags."""
         t = set()
         for f in files:
+            if f.endswith(
+                self.app.config.get("MUTATIO_ADMIN", dashboard_template)
+            ):
+                continue
             with open(f, 'r') as f:
                 soup = BeautifulSoup(f.read(), 'html.parser')
                 tags = soup.find_all(mutatio=True)
