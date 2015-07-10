@@ -17,7 +17,6 @@ class MutatioEnvironment(Environment):
         super(MutatioEnvironment, self).__init__(*args, **kwargs)
 
 
-# TODO make this create the new mongodb entries for the custom tags
 class MutatioFileSystemLoader(FileSystemLoader):
     def __init__(self, *args, **kwargs):
         super(MutatioFileSystemLoader, self).__init__(*args, **kwargs)

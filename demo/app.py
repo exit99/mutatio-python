@@ -1,15 +1,11 @@
-import os
-from flask_mutatio import MutatioEnvironment, TagGenerator
+from flask_mutatio import Mutatio
 from flask import Flask, render_template
 
 
 app = Flask('test_dummy')
 
-
-TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-
-taggen = TagGenerator()
-taggen.create_tags(TEMPLATE_PATH)
+mutatio = Mutatio()
+mutatio.init_app(app)
 
 
 @app.route('/')

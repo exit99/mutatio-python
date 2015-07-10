@@ -5,10 +5,13 @@ from bs4 import BeautifulSoup
 
 
 class TagGenerator():
+    def __init__(self, db, app=None):
+        self.db = db
+        self.app = app
+
     def create_tags(self, template_dir):
         files = self.load_files(template_dir)
-        tags = self.extract_tags(files, template_dir)
-        import pdb; pdb.set_trace()
+        return self.extract_tags(files, template_dir)
 
     def commit_to_mongo(self, tags):
         """Tag the tag dict and create the intial json documents."""
@@ -29,26 +32,27 @@ class TagGenerator():
         return file_paths
 
     def extract_tags(self, files, template_dir):
-        t = {}
+        """Parse the templates and return a dictionary of tags."""
+        t = set()
         for f in files:
             with open(f, 'r') as f:
                 soup = BeautifulSoup(f.read(), 'html.parser')
                 tags = soup.find_all(mutatio=True)
-                f_name = f.name[len(template_dir) + 1:][:-5].replace('/', '_')
+                f_name = self._format_file_name(f, template_dir)
             for tag in tags:
-                tag_name = tag['mutatio']
-                if f_name not in t.keys():
-                    t[f_name] = {}
-                if tag_name not in t[f_name].keys():
-                    t[f_name][tag_name] = set()
-                tag_set = self.fetch_template_tags(tag.text)
-                t[f_name][tag_name] = t[f_name][tag_name].union(tag_set)
+                tag_name = tag[self.app.config.get('MUTATIO_TAG', 'mutatio')]
+                tags = self.fetch_template_tags(tag.text)
+                tag_set = map(lambda t: "_".join([f_name, tag_name, t]), tags)
+                t.update(tag_set)
         return t
 
     def fetch_template_tags(self, text):
-        # Make these so you can change somewhere.
-        start = '{@'
-        end = '@}'
+        start, end = self.app.config.get('MUTATIO_TEMPLATE_TAGS', ('{@', '@}'))
         var = '{}.+?{}'.format(start, end)
         matches = re.findall(var, text)
         return set([m[len(start):-len(end)].strip(' ') for m in matches])
+
+    def _format_file_name(self, f, template_dir):
+        return f.name[
+            len(template_dir) + 1:
+        ].replace('/', '_').replace('.', '_')
