@@ -1,5 +1,4 @@
 Flask==0.10.1
-Flask-Admin==1.2.0
 Jinja2==2.7.3
 MarkupSafe==0.23
 WTForms==2.0.2

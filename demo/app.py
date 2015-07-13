@@ -1,23 +1,10 @@
 from flask import Flask, render_template
-from flask_admin import Admin, BaseView, expose
-from flask_mutatio import Mutatio, dashboard_template
+from flask_mutatio import Mutatio
 
 app = Flask(__name__)
 
-
-class MyView(BaseView):
-    @expose('/')
-    def index(self):
-        return self.render(app.config.get('MUTATIO_ADMIN', dashboard_template))
-
-
-admin = Admin(app)
-admin.add_view(MyView(name='Hello'))
-
-
 app = Flask('test_dummy')
-
-admin = Admin(app)
+app.config['DEBUG'] = True
 
 mutatio = Mutatio()
 mutatio.init_app(app)

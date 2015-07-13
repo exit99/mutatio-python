@@ -1,5 +1,5 @@
 from .connection import mongo_connection
-from .environment import MutatioEnvironment
+from .defaults import dashboard_template, sep
 from .generate import TagGenerator
 
 
@@ -31,6 +31,7 @@ class Mutatio():
         self.app = app
         self.tags = self.gen_tags()
         self.commit_tags(self.tags)
+        FlaskDashboard(self.db, self.tags, self.app)
 
     def gen_tags(self):
         """Return dictionary of tags generated for each template directory.
@@ -67,3 +68,40 @@ class Mutatio():
         for tag in unused:
             print "Dropping: {}".format(tag)
             self.db.drop_collection(tag)
+
+
+class BaseDashboard(object):
+    def __init__(self, db, tags):
+        self.db = db
+        self.tags = tags
+
+    def format_tags_for_view(self, tags):
+        """Return nested dictionary of tags."""
+        tags = {}
+        for full_tag in sorted(self.tags):
+            f, tag, name = full_tag.split(sep)
+            if f not in tags.keys():
+                tags[f] = {}
+            if tag not in tags[f].keys():
+                tags[f][tag] = {}
+            if name not in tags[f][tag].keys():
+                tags[f][tag] = {}
+            tags[f][tag][name] = self.db[full_tag]
+        return tags
+
+
+class FlaskDashboard(BaseDashboard):
+    """Create the mutatio dashboard in flask."""
+    def __init__(self, db, tags, app):
+        super(FlaskDashboard, self).__init__(db, tags)
+        self.create_flask_dashboard(app)
+
+    def create_flask_dashboard(self, app):
+        """Create a dashboard view for flask."""
+        from flask import render_template
+
+        @app.route('/admin/mutatio')
+        def index():
+            template = app.config.get('MUTATIO_ADMIN', dashboard_template)
+            tags = self.format_tags_for_view(self.tags)
+            return render_template(template, tags=tags)

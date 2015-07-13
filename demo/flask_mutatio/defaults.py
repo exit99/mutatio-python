@@ -1,1 +1,2 @@
-dashboard_template = 'mutatio_admin.html'
+dashboard_template = 'mutatio_dashboard/index.html'
+sep = "==="

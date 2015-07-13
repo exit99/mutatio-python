@@ -1,9 +1,16 @@
+"""
+TODO:
+
+    Abstract flask and django stuff seperately.
+    Pull all the enviroment variables into one place.
+    Make the defaults editable via env vars.
+"""
 import os
 import re
 
 from bs4 import BeautifulSoup
 
-from .defaults import dashboard_template
+from .defaults import dashboard_template, sep
 
 
 class TagGenerator():
@@ -48,7 +55,7 @@ class TagGenerator():
             for tag in tags:
                 tag_name = tag[self.app.config.get('MUTATIO_TAG', 'mutatio')]
                 tags = self.fetch_template_tags(tag.text)
-                tag_set = map(lambda t: "_".join([f_name, tag_name, t]), tags)
+                tag_set = map(lambda t: sep.join([f_name, tag_name, t]), tags)
                 t.update(tag_set)
         return t
 
@@ -59,6 +66,4 @@ class TagGenerator():
         return set([m[len(start):-len(end)].strip(' ') for m in matches])
 
     def _format_file_name(self, f, template_dir):
-        return f.name[
-            len(template_dir) + 1:
-        ].replace('/', '_').replace('.', '_')
+        return f.name[len(template_dir) + 1:]
