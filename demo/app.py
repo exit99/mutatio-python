@@ -5,10 +5,10 @@ app = Flask(__name__)
 
 app = Flask('test_dummy')
 app.config['DEBUG'] = True
+app.config['MUTATIO_TEMPLATE_TAGS'] = ('{@', '@}')
 
 mutatio = Mutatio()
 mutatio.init_app(app)
-
 
 @app.route('/')
 def hello_world():

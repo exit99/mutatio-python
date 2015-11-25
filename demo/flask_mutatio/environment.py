@@ -5,7 +5,6 @@ from jinja2.loaders import FileSystemLoader
 class _MutatioEnvironmentMeta(type):
     """Collects the mutatio tags into Mongo for the admin page."""
     def __init__(cls, name, bases, dct):
-        print cls, name, bases, dct
         super(_MutatioEnvironmentMeta, cls).__init__(name, bases, dct)
 
 

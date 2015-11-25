@@ -1,0 +1,2 @@
+class DuplicateTagError(Exception):
+    pass

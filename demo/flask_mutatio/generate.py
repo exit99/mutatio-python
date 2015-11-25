@@ -3,14 +3,14 @@ TODO:
 
     Abstract flask and django stuff seperately.
     Pull all the enviroment variables into one place.
-    Make the defaults editable via env vars.
+    Make the defaults editable via env vars. (anotherwords wherever
+    you see app.config.get("BLAH", "EH") just make eh the default in the app.
 """
 import os
 import re
 
-from bs4 import BeautifulSoup
-
-from .defaults import dashboard_template, sep
+from .defaults import dashboard_template
+from .exceptions import DuplicateTagError
 
 
 class TagGenerator():
@@ -37,33 +37,44 @@ class TagGenerator():
                     file_paths.add(os.path.join(root, f))
             for subdir in subdirs:
                 print subdir
+
+                # TODO: Remove this.
+                if subdir == ".ropeproject":
+                    print "Skipping..."
+                    continue
+
                 file_paths.union(self.load_files(os.path.join(root, subdir)))
         return file_paths
 
     def extract_tags(self, files, template_dir):
         """Parse the templates and return a dictionary of tags."""
-        t = set()
+        tags = {}
         for f in files:
             if f.endswith(
                 self.app.config.get("MUTATIO_ADMIN", dashboard_template)
             ):
                 continue
             with open(f, 'r') as f:
-                soup = BeautifulSoup(f.read(), 'html.parser')
-                tags = soup.find_all(mutatio=True)
                 f_name = self._format_file_name(f, template_dir)
-            for tag in tags:
-                tag_name = tag[self.app.config.get('MUTATIO_TAG', 'mutatio')]
-                tags = self.fetch_template_tags(tag.text)
-                tag_set = map(lambda t: sep.join([f_name, tag_name, t]), tags)
-                t.update(tag_set)
-        return t
+                f_tags = self.tags_list_from_html(f.read())
+                self._valid_tags(tags)
+            if f_name in tags:
+                raise DuplicateTagError()
+            tags[f_name] = f_tags
+        return tags
 
-    def fetch_template_tags(self, text):
-        start, end = self.app.config.get('MUTATIO_TEMPLATE_TAGS', ('{@', '@}'))
-        var = '{}.+?{}'.format(start, end)
-        matches = re.findall(var, text)
-        return set([m[len(start):-len(end)].strip(' ') for m in matches])
+    def tags_list_from_html(self, html):
+        """Return a list of tag names in the html."""
+        expr = ".*?".join(self.app.config.get("MUTATIO_TEMPLATE_TAGS"))
+        matches = re.findall(expr, html)
+        return [self._remove_template_tags(m) for m in matches]
+
+    def _valid_tags(self, tags):
+        if len(tags) != len(set(tags)):
+            raise DuplicateTagError()
 
     def _format_file_name(self, f, template_dir):
         return f.name[len(template_dir) + 1:]
+
+    def _remove_template_tags(self, match):
+        return match[2:-2].strip(' ')

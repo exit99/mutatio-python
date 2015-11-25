@@ -26,22 +26,25 @@ class Mutatio():
         self.db = mongo_connection(
             app.config.get("MUTATIO_DB", 'mutatio'),
             app.config.get("MUTATIO_HOST", 'localhost'),
-            app.config.get("MUTATIO_PORT", 27018)
+            app.config.get("MUTATIO_PORT", 27017)
         )
         self.app = app
         self.tags = self.gen_tags()
         self.commit_tags(self.tags)
         FlaskDashboard(self.db, self.tags, self.app)
+        return app
 
     def gen_tags(self):
         """Return dictionary of tags generated for each template directory.
 
         :param app: The current Flask application.
         """
-        tags = set()
+        tags = {}
         self.tag_generator = TagGenerator(self.db, self.app)
         for path in self.app.jinja_loader.searchpath:
-            tags.update(self.tag_generator.create_tags(path))
+            p_tags = self.tag_generator.create_tags(path)
+            self._valid_tags(tags, p_tags)
+            tags.update(p_tags)
         return tags
 
     def commit_tags(self, tags):
@@ -53,6 +56,8 @@ class Mutatio():
         collection names in mongo. The actual stored document is the
         content stored for display.
         """
+        import pdb; pdb.set_trace()
+        assert 0, "YOU ARE HERE. SAVING THE TAGS TO MONGO IN THE CORRECT FORMAT"
         c_names = self.db.collection_names()
         for tag in tags:
             if tag in c_names:
@@ -68,6 +73,11 @@ class Mutatio():
         for tag in unused:
             print "Dropping: {}".format(tag)
             self.db.drop_collection(tag)
+
+    def _valid_tags(self, tags, p_tags):
+        for k in p_tags:
+            if k in tags:
+                raise DuplicateTagError()
 
 
 class BaseDashboard(object):
@@ -93,6 +103,7 @@ class BaseDashboard(object):
 class FlaskDashboard(BaseDashboard):
     """Create the mutatio dashboard in flask."""
     def __init__(self, db, tags, app):
+        import pdb; pdb.set_trace()
         super(FlaskDashboard, self).__init__(db, tags)
         self.create_flask_dashboard(app)
 
