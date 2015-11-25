@@ -22,9 +22,6 @@ class TagGenerator():
         files = self.load_files(template_dir)
         return self.extract_tags(files, template_dir)
 
-    def commit_to_mongo(self, tags):
-        """Tag the tag dict and create the intial json documents."""
-
     def load_files(self, template_dir):
         """Return a set of the absolute paths of all html files in the path.
 

@@ -159,9 +159,9 @@
                 {% for page, tags in tags.items() %}
                 <li>
                 <a href="#">{{ page }}</a>
-                    {% for tag in tags.keys() %}
+                    {% for tag, value in tags.iteritems() %}
                     <ul class="children">
-                        <li><a href="#">{{ tag }}</a></li>
+                        <li><a href="#" value="{{ value }}">{{ tag }}</a></li>
                     </ul>
                     {% endfor %}
                 </li>

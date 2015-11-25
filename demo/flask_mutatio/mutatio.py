@@ -1,5 +1,6 @@
+from collections import OrderedDict
 from .connection import mongo_connection
-from .defaults import dashboard_template, sep
+from .defaults import dashboard_template
 from .generate import TagGenerator
 
 
@@ -56,14 +57,13 @@ class Mutatio():
         collection names in mongo. The actual stored document is the
         content stored for display.
         """
-        import pdb; pdb.set_trace()
-        assert 0, "YOU ARE HERE. SAVING THE TAGS TO MONGO IN THE CORRECT FORMAT"
         c_names = self.db.collection_names()
-        for tag in tags:
-            if tag in c_names:
+        for t_name, tags in tags.iteritems():
+            if t_name in c_names:
                 continue
-            c = self.db[tag]
-            c.insert_one({'data': None})
+            c = self.db[t_name]
+            for tag in tags:
+                c.insert_one({tag: None})
 
     def drop_unused_tags(self):
         """Drop unused tags from the mongo database."""
@@ -87,23 +87,19 @@ class BaseDashboard(object):
 
     def format_tags_for_view(self, tags):
         """Return nested dictionary of tags."""
-        tags = {}
-        for full_tag in sorted(self.tags):
-            f, tag, name = full_tag.split(sep)
-            if f not in tags.keys():
-                tags[f] = {}
-            if tag not in tags[f].keys():
-                tags[f][tag] = {}
-            if name not in tags[f][tag].keys():
-                tags[f][tag] = {}
-            tags[f][tag][name] = self.db[full_tag]
+        tags = OrderedDict()
+        for template, t_tags in self.tags.iteritems():
+            if template not in tags.keys():
+                tags[template] = {}
+            for tag in t_tags:
+                assert 0, "YOU ARE HERE. RETRIEVING AND SAVING TO THE DB."
+                tags[template][tag] = self.db[template].find_one(tag)
         return tags
 
 
 class FlaskDashboard(BaseDashboard):
     """Create the mutatio dashboard in flask."""
     def __init__(self, db, tags, app):
-        import pdb; pdb.set_trace()
         super(FlaskDashboard, self).__init__(db, tags)
         self.create_flask_dashboard(app)
 

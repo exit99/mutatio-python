@@ -6,7 +6,18 @@ Dynamically update content in html page of a python app.
 1. Clone down the repo: `git clone git@github.com:Kazanz/mutatio-python.git`.
 2. Install the reqs: `pip install -r reqs/dev.txt`.
 3. Start the MongoDB VM: `vagrant up`. 
-4. Run the app: `python app.py`. 
+4. Make sure you have the correct `MUTATION_PORT` specified in the config.
+5. Run the app: `cd demo && python app.py`.
+6. You can view the admin panel at: `http://127.0.0.1:5000/admin/mutatio`.
+
+
+## Enviroment Variables
+
+MUTATIO_DB
+MUTATIO_HOST
+MUTATIO_PORT
+MUTATIO_TWEMPLATE
+MUTATIO_TEMPLATE_TAGS
 
 
 ## TODO
