@@ -33,11 +33,11 @@ class TagGenerator():
                 if f.endswith('.html'):
                     file_paths.add(os.path.join(root, f))
             for subdir in subdirs:
-                print subdir
+                print(subdir)
 
                 # TODO: Remove this.
                 if subdir == ".ropeproject":
-                    print "Skipping..."
+                    print("Skipping...")
                     continue
 
                 file_paths.union(self.load_files(os.path.join(root, subdir)))

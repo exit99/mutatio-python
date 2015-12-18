@@ -8,9 +8,7 @@ class _MutatioEnvironmentMeta(type):
         super(_MutatioEnvironmentMeta, cls).__init__(name, bases, dct)
 
 
-class MutatioEnvironment(Environment):
-    __metaclass__ = _MutatioEnvironmentMeta
-
+class MutatioEnvironment(Environment, metaclass=_MutatioEnvironmentMeta):
     def __init__(self, *args, **kwargs):
         self.app = kwargs.pop('app', None)
         super(MutatioEnvironment, self).__init__(*args, **kwargs)
@@ -23,4 +21,4 @@ class MutatioFileSystemLoader(FileSystemLoader):
         self.create_tags(args[0])
 
     def create_tags(self):
-        print "Tags creating......"
+        print("Tags creating......")

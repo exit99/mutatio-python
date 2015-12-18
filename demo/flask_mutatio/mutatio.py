@@ -1,4 +1,7 @@
 from collections import OrderedDict
+
+from flask import jsonify, request
+
 from .connection import mongo_connection
 from .defaults import dashboard_template
 from .generate import TagGenerator
@@ -58,7 +61,7 @@ class Mutatio():
         content stored for display.
         """
         c_names = self.db.collection_names()
-        for t_name, tags in tags.iteritems():
+        for t_name, tags in tags.items():
             if t_name in c_names:
                 continue
             c = self.db[t_name]
@@ -71,7 +74,7 @@ class Mutatio():
         tags.add('system.indexes')
         unused = set(self.db.collection_name()) - tags
         for tag in unused:
-            print "Dropping: {}".format(tag)
+            print("Dropping: {}".format(tag))
             self.db.drop_collection(tag)
 
     def _valid_tags(self, tags, p_tags):
@@ -88,11 +91,10 @@ class BaseDashboard(object):
     def format_tags_for_view(self, tags):
         """Return nested dictionary of tags."""
         tags = OrderedDict()
-        for template, t_tags in self.tags.iteritems():
-            if template not in tags.keys():
+        for template, t_tags in self.tags.items():
+            if template not in list(tags.keys()):
                 tags[template] = {}
             for tag in t_tags:
-                assert 0, "YOU ARE HERE. RETRIEVING AND SAVING TO THE DB."
                 tags[template][tag] = self.db[template].find_one(tag)
         return tags
 
@@ -107,8 +109,16 @@ class FlaskDashboard(BaseDashboard):
         """Create a dashboard view for flask."""
         from flask import render_template
 
-        @app.route('/admin/mutatio')
+        @app.route('/')
         def index():
             template = app.config.get('MUTATIO_ADMIN', dashboard_template)
+            return render_template(template)
+
+        @app.route('/tags')
+        def tags():
             tags = self.format_tags_for_view(self.tags)
-            return render_template(template, tags=tags)
+            return jsonify(**tags)
+
+        @app.route('/update', methods=['POST'])
+        def update():
+            data = request.json()

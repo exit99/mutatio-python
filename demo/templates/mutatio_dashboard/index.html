@@ -9,10 +9,15 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Simple Sidebar - Start Bootstrap Template</title>
+    <title>Leshy - Admin</title>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    {% assets "css_all" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+
+    {% assets "js_all" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 
     <!-- Custom CSS -->
     <style>
@@ -156,16 +161,12 @@
                          Mutatio
                     </a>
                 </li>
-                {% for page, tags in tags.items() %}
                 <li>
                 <a href="#">{{ page }}</a>
-                    {% for tag, value in tags.iteritems() %}
                     <ul class="children">
-                        <li><a href="#" value="{{ value }}">{{ tag }}</a></li>
+                        <li><a href="#" value="{{ value }}">tagg</a></li>
                     </ul>
-                    {% endfor %}
                 </li>
-                {% endfor %}
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->

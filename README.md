@@ -22,6 +22,8 @@ Dynamically update content in html page of a python app.
 
 ## TODO
 
-[ ] Generate the text fields in the admin panel.
+[ ] Generate the text fields in the admin panel with react.
 
-[ ] Rerender from a save on the admin panel.
+[ ] Rerender from a save on the admin panel (provide a hook for doing additional commands after the save like restart nginx).
+
+[ ] Create the flask app in a method and make a wsgi file.
